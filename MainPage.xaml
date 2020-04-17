@@ -1,0 +1,76 @@
+﻿<Page
+    x:Class="WarehouseDesigner.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:WarehouseDesigner"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <CommandBar x:Name="commandBar" Grid.Row="0">
+            <AppBarToggleButton Icon="Play" Label="Run"/>
+            <AppBarSeparator/>
+            <AppBarToggleButton x:Name="editBlock" Icon="MailFilled" Label="Block" Checked="EditBlock_Checked" Unchecked="EditBlock_Unchecked"/>
+            <AppBarToggleButton x:Name="editShelf" Icon="DockBottom" Label="Shelf" Checked="EditShelf_Checked" Unchecked="EditShelf_Unchecked"/>
+            <AppBarToggleButton x:Name="editAGV" Icon="SlideShow" Label="AGV" Checked="EditAGV_Checked" Unchecked="EditAGV_Unchecked"/>
+            <AppBarSeparator/>
+            <AppBarButton Width="70" IsCompact="false" Click="ButtonSave_Click" Label="Save" Icon="Save"/>
+            <AppBarButton Width="70" IsCompact="false" Click="ButtonOpen_Click" Label="Load" Icon="OpenFile"/>
+
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Click="AppBarButton_Click" Label="Help" Icon="Help"/>
+            </CommandBar.SecondaryCommands>
+
+            <CommandBar.Content>
+                <TextBlock Text="{x:Bind mDisplayMessage, Mode=OneWay}" Margin="16,14" HorizontalAlignment="Left"/>
+            </CommandBar.Content>
+        </CommandBar>
+        <SplitView IsPaneOpen="True" DisplayMode="Inline" OpenPaneLength="296" Grid.Row="1" PanePlacement="Right">
+            <SplitView.Pane>
+                <RelativePanel Margin="0,0,0,0">
+                    <StackPanel x:Name="Field_Properties">
+                        <TextBlock Margin="16,16,0,0" HorizontalAlignment="Left" FontSize="24" FontStyle="Italic" Text="Field Properties"/>
+                        <TextBlock Margin="16,8,0,0" HorizontalAlignment="Left" FontSize="16" Text="Row Count"/>
+                        <TextBox Margin="16,8,0,0" Text="{x:Bind mField.mRowCount, Mode=TwoWay}" TextWrapping="Wrap"/>
+                        <TextBlock Margin="16,8,0,0" HorizontalAlignment="Left" FontSize="16" Text="Column Count"/>
+                        <TextBox Margin="16,8,0,0" Text="{x:Bind mField.mColumnCount, Mode=TwoWay}" TextWrapping="Wrap"/>
+                        <Button Margin="16,8,0,0" Width="160" Content="Create New Map" Click="CreateButton_Click"/>
+                    </StackPanel>
+                    <StackPanel x:Name="AGV_Properties" RelativePanel.Below="Field_Properties">
+                        <TextBlock Margin="16,16,0,0" HorizontalAlignment="Left" FontSize="24" FontStyle="Italic" Text="AGVBase Properties"/>
+                        <TextBlock Margin="16,8,0,0" HorizontalAlignment="Left" FontSize="16" Text="Side Length (grid)"/>
+                        <TextBox Margin="16,8,0,0" Text="{x:Bind mAGVBase.mSideLength, Mode=TwoWay}" IsEnabled="False" TextWrapping="Wrap"/>
+                        <TextBlock Margin="16,8,0,0" HorizontalAlignment="Left" FontSize="16" Text="Max Speed (grid/s)"/>
+                        <TextBox Margin="16,8,0,0" Text="{x:Bind mAGVBase.mMaxSpeed, Mode=TwoWay}" IsEnabled="False" TextWrapping="Wrap"/>
+                        <TextBlock Margin="16,8,0,0" HorizontalAlignment="Left" FontSize="16" Text="Acceleration (grid/s2)"/>
+                        <TextBox Margin="16,8,0,0" Text="{x:Bind mAGVBase.mAcceleration, Mode=TwoWay}" IsEnabled="False" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <StackPanel x:Name="Algorithm" RelativePanel.Below="AGV_Properties">
+                        <TextBlock Margin="16,16,0,0" HorizontalAlignment="Left" FontSize="24" FontStyle="Italic" Text="Algorithm"/>
+                        <TextBlock Margin="16,8,0,0" HorizontalAlignment="Left" FontSize="16" Text="Library Name"/>
+                        <RelativePanel>
+                            <ComboBox x:Name="Library" Margin="16,8,0,0" Width="160"/>
+                            <Button Margin="16,8,0,0" Height="32" RelativePanel.RightOf="Library" Click="RefreshButton_Click">
+                                <StackPanel>
+                                    <TextBlock Grid.Column="0" FontFamily="Segoe MDL2 Assets" Text="&#xE72C;"/>
+                                </StackPanel>
+                            </Button>
+                        </RelativePanel>
+                    </StackPanel>
+                </RelativePanel>
+            </SplitView.Pane>
+
+            <Grid>
+                <ScrollViewer>
+                    <Canvas x:Name="MainCanvas" Margin="10,10,10,10" Height="Auto" Width="Auto" Background="LightBlue" Tapped="MainCanvas_Tapped"/>
+                </ScrollViewer>
+            </Grid>
+        </SplitView>
+    </Grid>
+</Page>
