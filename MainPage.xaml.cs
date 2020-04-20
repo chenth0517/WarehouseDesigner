@@ -108,9 +108,9 @@ namespace WarehouseDesigner
         {
             int ret = ReDrawGrid();
             if (ret < 0) return ret;
-            ret = ReDrawBlock();
+            ret = ReDrawBlockList();
             if (ret < 0) return ret;
-            ret = ReDrawShelf();
+            ret = ReDrawShelfList();
             return ret;
         }
 
@@ -151,17 +151,17 @@ namespace WarehouseDesigner
             return ConstDefine.ERR_NO_ERROR;
         }
 
-        private int ReDrawBlock()
+        private int ReDrawBlockList()
         {
             mCanvasBlock.Children.Clear();
-            return ReDrawRectangle(mField.mBlockList, Windows.UI.Colors.Black);
+            return ReDrawRectangleList(mField.mBlockList, Windows.UI.Colors.Black);
         }
-        private int ReDrawShelf()
+        private int ReDrawShelfList()
         {
             mCanvasShelf.Children.Clear();
-            return ReDrawRectangle(mField.mShelfList, Windows.UI.Colors.LightGoldenrodYellow, ConstDefine.DEFAULT_SHELF_SIDE_LENGTH);
+            return ReDrawRectangleList(mField.mShelfList, Windows.UI.Colors.LightGoldenrodYellow, ConstDefine.DEFAULT_SHELF_SIDE_LENGTH);
         }
-        private int ReDrawRectangle(List<(int, int)> iRectList, Windows.UI.Color iColor, double iShrink = 1)
+        private int ReDrawRectangleList(List<(int, int)> iRectList, Windows.UI.Color iColor, double iShrink = 1)
         {
             double gridWidth = MainCanvas.ActualWidth / mField.mColumnCount;
             double gridHeight = MainCanvas.ActualHeight / mField.mRowCount;

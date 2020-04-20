@@ -1,6 +1,6 @@
 ﻿namespace WarehouseDesigner
 {
-    public class AGVBase
+    public class AGVBase    // 和主界面上，AGV Properties 中的选项双向关联，暂时使用的都是缺省值
     {
         public double mSideLength { get; set; }
         public double mMaxSpeed { get; set; }

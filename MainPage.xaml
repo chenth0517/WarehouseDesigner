@@ -43,7 +43,7 @@
                         <Button Margin="16,8,0,0" Width="160" Content="Create New Map" Click="CreateButton_Click"/>
                     </StackPanel>
                     <StackPanel x:Name="AGV_Properties" RelativePanel.Below="Field_Properties">
-                        <TextBlock Margin="16,16,0,0" HorizontalAlignment="Left" FontSize="24" FontStyle="Italic" Text="AGVBase Properties"/>
+                        <TextBlock Margin="16,16,0,0" HorizontalAlignment="Left" FontSize="24" FontStyle="Italic" Text="AGV Properties"/>
                         <TextBlock Margin="16,8,0,0" HorizontalAlignment="Left" FontSize="16" Text="Side Length (grid)"/>
                         <TextBox Margin="16,8,0,0" Text="{x:Bind mAGVBase.mSideLength, Mode=TwoWay}" IsEnabled="False" TextWrapping="Wrap"/>
                         <TextBlock Margin="16,8,0,0" HorizontalAlignment="Left" FontSize="16" Text="Max Speed (grid/s)"/>

@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Runtime.CompilerServices;
 
 namespace WarehouseDesigner
@@ -53,7 +55,7 @@ namespace WarehouseDesigner
         public void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        //阻塞方块
+        // 编辑阻塞方块：按坐标位置取反（没有就追加，已有就删除）
         public List<(int, int)> mBlockList = new List<(int, int)>();
         public int EditBlock(int iX, int iY)
         {
@@ -71,7 +73,7 @@ namespace WarehouseDesigner
             }
             return EditList(mBlockList, iX, iY);
         }
-        //货架方块
+        // 编辑货架方块：按坐标位置取反（没有就追加，已有就删除）
         public List<(int, int)> mShelfList = new List<(int, int)>();
         public int EditShelf(int iX, int iY)
         {
@@ -83,9 +85,10 @@ namespace WarehouseDesigner
             }
             return EditList(mShelfList, iX, iY);
         }
-        //占位判断
-        public bool IsOccupied(List<(int, int)> iTarget, ref (int, int) ioPos)
+        //占位判断：用于阻塞及货架
+        public static bool IsOccupied(List<(int, int)> iTarget, ref (int, int) ioPos)
         {
+            Contract.Requires(iTarget != null);
             foreach ((int, int) pos in iTarget)
             {
                 if (pos.Equals(ioPos))
@@ -96,8 +99,10 @@ namespace WarehouseDesigner
             }
             return false;
         }
-        public bool IsOccupied(List<AGV> iAGVTarger, (int, int) ioPos, out int oIndex)
+        //占位判断：用于AGV
+        public static bool IsOccupied(List<AGV> iAGVTarger, (int, int) ioPos, out int oIndex)
         {
+            Contract.Requires(iAGVTarger != null);
             oIndex = ConstDefine.INVALID_VALUE;
             foreach (AGV agv in iAGVTarger)
             {
@@ -124,9 +129,10 @@ namespace WarehouseDesigner
             }
             return false;
         }
-        //方块编辑
+        // 方块编辑：考察现有的列表iList，并按坐标位置取反（没有就追加，已有就删除）
         public int EditList(List<(int, int)> iList, int iX, int iY)
         {
+            Contract.Requires(iList != null);
             if (iX >= mColumnCount || iY >= mRowCount)
             {
                 Debug.WriteLine("EditBlock error: Index out of boundary");
@@ -217,6 +223,7 @@ namespace WarehouseDesigner
         //生成文件内容
         public int GenerateConfig(List<string> oConfig)
         {
+            Contract.Requires(oConfig != null);
             oConfig.Add("RowCount=" + mRowCount);
             oConfig.Add("ColumnCount=" + mColumnCount);
             oConfig.Add("BlockList=" + JsonConvert.SerializeObject(mBlockList));
@@ -227,6 +234,7 @@ namespace WarehouseDesigner
         //解析文件内容
         public int ParseConfig(List<string> iConfig)
         {
+            Contract.Requires(iConfig != null);
             if (iConfig.Count < ConstDefine.LAYOUT_CONFIG_FILE_ROW)
             {
                 return ConstDefine.ERR_INVALID_FILE_CONTENT;

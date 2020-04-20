@@ -1,4 +1,6 @@
-﻿using System;
+﻿///this class is not in use yet///
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
