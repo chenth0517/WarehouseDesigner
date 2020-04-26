@@ -50,13 +50,18 @@ namespace WarehouseDesigner
             }
         }
 
+        public List<(int, int)> mBlockList = new List<(int, int)>();    // 阻塞方块列表
+        public List<(int, int)> mShelfList = new List<(int, int)>();    // 货架方块列表
+        public int mAGVDeployStep { get; set; } // 当前AGV部署步骤
+        public List<AGV> mAGVList { get; set; } // AGV列表
+        public int mMaxAgvListCount = 1;    // 当前AGV最大数量
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         // 编辑阻塞方块：按坐标位置取反（没有就追加，已有就删除）
-        public List<(int, int)> mBlockList = new List<(int, int)>();
         public int EditBlock(int iX, int iY)
         {
             (int, int) pos = (iX, iY);
@@ -74,7 +79,6 @@ namespace WarehouseDesigner
             return EditList(mBlockList, iX, iY);
         }
         // 编辑货架方块：按坐标位置取反（没有就追加，已有就删除）
-        public List<(int, int)> mShelfList = new List<(int, int)>();
         public int EditShelf(int iX, int iY)
         {
             (int, int) pos = (iX, iY);
@@ -151,7 +155,6 @@ namespace WarehouseDesigner
         }
 
         //AGV实例
-        public int mAGVDeployStep { get; set; }
         public int NextAGVDeployStep()
         {
             switch (mAGVDeployStep)
@@ -168,9 +171,7 @@ namespace WarehouseDesigner
                     return ConstDefine.DRAW_AGV_STEP_START;
             }
         }
-        AGV tAGV { get; set; }
-        public List<AGV> mAGVList { get; set; }
-        public int mMaxAgvListCount = 0;
+        private AGV lAGV { get; set; }  // 局部缓存
         public int EditAGV(int iX, int iY, out int oRemoveIndex)
         {
             oRemoveIndex = ConstDefine.INVALID_VALUE;
@@ -185,7 +186,32 @@ namespace WarehouseDesigner
                 Debug.WriteLine("AGV cannot get through block.");
                 return ConstDefine.ERR_POSITION_OCCUPIED_BY_BLOCK;
             }
-            if (IsOccupied(mAGVList, pos, out oRemoveIndex))
+            if (!IsOccupied(mAGVList, pos, out oRemoveIndex))    // 如果位置可用，在模型中添加AGV途径点
+            {
+                switch (mAGVDeployStep)
+                {
+                    case ConstDefine.DRAW_AGV_STEP_START:
+                        lAGV = new AGV();
+                        lAGV.mIndex = mMaxAgvListCount;
+                        lAGV.AddStartPos(iX, iY);
+                        break;
+                    case ConstDefine.DRAW_AGV_STEP_PICKUP:
+                        lAGV.AddPickupPos(iX, iY);
+                        break;
+                    case ConstDefine.DRAW_AGV_STEP_DROPDOWN:
+                        lAGV.AddDropdownPos(iX, iY);
+                        break;
+                    case ConstDefine.DRAW_AGV_STEP_END:
+                        lAGV.AddEndPost(iX, iY);
+                        mAGVList.Add(lAGV);
+                        mMaxAgvListCount++;
+                        break;
+                    default:
+                        Debug.WriteLine($"Invalid AVG position {iX},{iY}");
+                        break;
+                }
+            }
+            else    // 如果位置已经占用了，清除整条AGV路径，且稍后先不画新路径
             {
                 foreach (AGV agv in mAGVList)
                 {
@@ -195,28 +221,6 @@ namespace WarehouseDesigner
                         break;
                     }
                 }
-            }
-            switch (mAGVDeployStep)
-            {
-                case ConstDefine.DRAW_AGV_STEP_START:
-                    tAGV = new AGV();
-                    tAGV.mIndex = mMaxAgvListCount;
-                    tAGV.AddStartPos(iX, iY);
-                    break;
-                case ConstDefine.DRAW_AGV_STEP_PICKUP:
-                    tAGV.AddPickupPos(iX, iY);
-                    break;
-                case ConstDefine.DRAW_AGV_STEP_DROPDOWN:
-                    tAGV.AddDropdownPos(iX, iY);
-                    break;
-                case ConstDefine.DRAW_AGV_STEP_END:
-                    tAGV.AddEndPost(iX, iY);
-                    mAGVList.Add(tAGV);
-                    mMaxAgvListCount++;
-                    break;
-                default:
-                    Debug.WriteLine($"Invalid AVG position {iX},{iY}");
-                    break;
             }
             return ConstDefine.ERR_NO_ERROR;
         }

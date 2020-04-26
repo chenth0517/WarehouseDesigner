@@ -63,6 +63,18 @@
                             </Button>
                         </RelativePanel>
                     </StackPanel>
+                    <StackPanel x:Name="DebugArea" RelativePanel.Below="Algorithm">
+                        <TextBlock Margin="16,16,0,0" HorizontalAlignment="Left" FontSize="24" FontStyle="Italic" Text="Debug Area"/>
+                        <RelativePanel>
+                            <TextBlock x:Name="mIndex" Margin="16,8,0,0" HorizontalAlignment="Left" FontSize="16" Text="mIndex"/>
+                            <TextBox Margin="16,8,0,0" RelativePanel.RightOf="mIndex" Text="{x:Bind lDrawAGV.mIndex, Mode=TwoWay}" TextWrapping="Wrap"/>
+                        </RelativePanel>
+                        <RelativePanel>
+                            <TextBlock x:Name="mMaxAgvListCount" Margin="16,8,0,0" HorizontalAlignment="Left" FontSize="16" Text="mMaxAgvListCount"/>
+                            <TextBox Margin="16,8,0,0" RelativePanel.RightOf="mMaxAgvListCount" Text="{x:Bind mField.mMaxAgvListCount, Mode=TwoWay}" TextWrapping="Wrap"/>
+                        </RelativePanel>
+
+                    </StackPanel>
                 </RelativePanel>
             </SplitView.Pane>
 

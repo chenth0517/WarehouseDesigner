@@ -92,9 +92,17 @@ namespace WarehouseDesigner
             mField.mBlockList.Clear();
             mField.mShelfList.Clear();
             mField.mAGVList.Clear();
-            mField.mMaxAgvListCount = 0;
+            mField.mMaxAgvListCount = 1;
+            mField.mAGVDeployStep = ConstDefine.DRAW_AGV_STEP_START;
             mField.mFileName = "New file";
+
+            mDrawAGVList.Clear();
+            mCanvasGrid.Children.Clear();
+            mCanvasBlock.Children.Clear();
+            mCanvasShelf.Children.Clear();
+            mCanvasAGV.Children.Clear();
             mDisplayMessage = mField.mFileName;
+
             ReDrawAll();
             ReDrawAGVList(mField.mAGVList);
         }
@@ -192,7 +200,6 @@ namespace WarehouseDesigner
             return ConstDefine.ERR_NO_ERROR;
         }
 
-        DrawAGV drawAGV;
         private int ReDrawAGVList(List<AGV> iAGVList)
         {
             mCanvasAGV.Children.Clear();
@@ -205,6 +212,7 @@ namespace WarehouseDesigner
             }
             return ConstDefine.ERR_NO_ERROR;
         }
+        private DrawAGV lDrawAGV;    // 局部缓存
         private int ReDrawAGV(int iStep, int iX, int iY, int? iIndex=null)
         {
             double gridWidth = MainCanvas.ActualWidth / mField.mColumnCount;
@@ -215,8 +223,8 @@ namespace WarehouseDesigner
             switch(iStep)
             {
                 case ConstDefine.DRAW_AGV_STEP_START:
-                    drawAGV = new DrawAGV();
-                    drawAGV.mIndex = ((iIndex == null) ? mField.mMaxAgvListCount : (int)iIndex);
+                    lDrawAGV = new DrawAGV();
+                    lDrawAGV.mIndex = ((iIndex == null) ? mField.mMaxAgvListCount : (int)iIndex);
                     color = Windows.UI.Colors.Yellow;
                     textBlock.Text = ((char)0xE707).ToString();
                     break;
@@ -259,21 +267,21 @@ namespace WarehouseDesigner
             };
 
             TextBlock textBlockIdx = new TextBlock();
-            textBlockIdx.Text = " " + drawAGV.mIndex.ToString();
+            textBlockIdx.Text = " " + lDrawAGV.mIndex.ToString();
             textBlockIdx.RenderTransform = new TranslateTransform
             {
                 X = iX * gridWidth + ConstDefine.DEFAULT_LINE_THICKNESS + 10,
                 Y = iY * gridHeight + ConstDefine.DEFAULT_LINE_THICKNESS - 4,
             };
 
-            drawAGV.mCanvas.Children.Add(polygon);
-            drawAGV.mCanvas.Children.Add(textBlock);
-            drawAGV.mCanvas.Children.Add(textBlockIdx);
+            lDrawAGV.mCanvas.Children.Add(polygon);
+            lDrawAGV.mCanvas.Children.Add(textBlock);
+            lDrawAGV.mCanvas.Children.Add(textBlockIdx);
 
             if (iStep == ConstDefine.DRAW_AGV_STEP_START)
             {
-                mDrawAGVList.Add(drawAGV);
-                mCanvasAGV.Children.Add(drawAGV.mCanvas);
+                mDrawAGVList.Add(lDrawAGV);
+                mCanvasAGV.Children.Add(lDrawAGV.mCanvas);
             }
             return ConstDefine.ERR_NO_ERROR;
         }
@@ -320,25 +328,28 @@ namespace WarehouseDesigner
             {
                 int oRemoveIndex = ConstDefine.INVALID_VALUE;
                 int ret = mField.EditAGV(positionX, positionY, out oRemoveIndex);
-                if (oRemoveIndex != ConstDefine.INVALID_VALUE)
-                {
-                    foreach (DrawAGV drawAGV in mDrawAGVList)
-                    {
-                        if (drawAGV.mIndex == oRemoveIndex)
-                        {
-                            mCanvasAGV.Children.Remove(drawAGV.mCanvas);
-                            mDrawAGVList.Remove(drawAGV);
-                            break;
-                        }
-                    }
-                }
                 if (ret < 0)
                 {
                     ShowErrorMessage(ret);
                     return;
                 }
-                ReDrawAGV(mField.mAGVDeployStep, positionX, positionY);
-                mField.mAGVDeployStep = mField.NextAGVDeployStep();
+                if (oRemoveIndex == ConstDefine.INVALID_VALUE)  // 没有删除的索引，表示位置可用，画新路径
+                {
+                    ReDrawAGV(mField.mAGVDeployStep, positionX, positionY);
+                    mField.mAGVDeployStep = mField.NextAGVDeployStep();
+                }
+                else  // 如果位置已经占用了，删除旧模型
+                {
+                    foreach (DrawAGV tdrawAGV in mDrawAGVList)
+                    {
+                        if (tdrawAGV.mIndex == oRemoveIndex)
+                        {
+                            mCanvasAGV.Children.Remove(tdrawAGV.mCanvas);
+                            mDrawAGVList.Remove(tdrawAGV);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
